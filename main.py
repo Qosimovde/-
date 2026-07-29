@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.types import Message
 import yt_dlp
 
-TOKEN ="8549085903:AAGe2LmXahcCXxZzdOsF0oAB-h0g3j8Ilvg"
+TOKEN ="8549085903:AAFbdwg8vyEEn4vOml7AzfCGZsBhkiRIg2I"
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
@@ -33,7 +33,7 @@ async def download_video(message: Message):
             video_file = types.FSInputFile(output_filename)
             await message.answer_document(
                 document=video_file,
-                caption="✅ Marhamat, siz so'ragan video!"
+                caption="Marhamat, siz so'ragan video!"
             )
             await bot.delete_message(chat_id=msg.chat.id, message_id=msg.message_id)
             os.remove(output_filename)
