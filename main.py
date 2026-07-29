@@ -29,13 +29,15 @@ async def download_video(message: Message):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        if os.path.exists(output_filename):
+                if os.path.exists(output_filename):
             video_file = types.FSInputFile(output_filename)
-            await message.answer_video(
-                video=video_file, 
-                caption="✅ Marhamat, siz so'ragan video!",
-                supports_streaming=True
+            await message.answer_document(
+                document=video_file,
+                caption="✅ Marhamat, siz so'ragan video!"
             )
+            await bot.delete_message(chat_id=msg.chat.id, message_id=msg.message_id)
+            os.remove(output_filename)
+
             await bot.delete_message(chat_id=message.chat.id, message_id=msg.message_id)
             os.remove(output_filename)
         else:
