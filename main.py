@@ -18,10 +18,11 @@ async def download_video(message: Message):
     output_filename = "video.mp4"
     
     ydl_opts = {
-        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+    'format': 'best',
     'outtmpl': output_filename,
+    'noplaylist': True,
 }
-    }
+
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
