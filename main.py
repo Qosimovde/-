@@ -1,69 +1,84 @@
 import os
-import logging
 import asyncio
+from aiohttp import web
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 import yt_dlp
 
-TOKEN = "8549085903:AAFbdwg8vyEEn4vOml7AzfCGZsBhkiRIg2I"
-
+TOKEN = "8549085903:AAFbdwg8vyEEn4VOm17AzfCGZsBhkirG2I"
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-logging.basicConfig(level=logging.INFO)
+# --- 1. UXLAMAYDIGAN QILISH (Keep-Alive Server) ---
+async def handle(request):
+    return web.Response(text="Bot ishlayapti va uxlamayapti!")
+
+async def start_web_server():
+    app = web.Application()
+    app.add_routes([web.get('/', handle)])
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 8080))
+    site = web.TCPSite(runner, '0.0.0.0', port)
+    await site.start()
+
+# --- 2. YUKLASH FUNKSIYASI ---
+def download_media(url: str) -> str:
+    ydl_opts = {
+        'format': 'best',
+        'outtmpl': 'downloads/%(id)s.%(ext)s',
+        'quiet': True,
+        'no_warnings': True,
+    }
+    os.makedirs('downloads', exist_ok=True)
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        filename = ydl.prepare_filename(info)
+        return filename
 
 @dp.message(Command("start"))
 async def start_cmd(message: types.Message):
-    await message.answer("Salom! Menga Instagram havolasini yuboring, men uni videoni o'z holatida (pleyerda) yuklab beraman.")
+    await message.answer("Assalomu alaykum! Menga Instagram yoki YouTube havolasini yuboring.")
 
 @dp.message()
-async def download_video(message: types.Message):
+async def download_handler(message: types.Message):
     url = message.text.strip()
-    
-    if not ("instagram.com" in url or "instagr.am" in url):
-        await message.answer("Iltimos, faqat Instagram havolasini yuboring!")
+    if not url.startswith("http"):
+        await message.answer("Iltimos, to'g'ri havola yuboring!")
         return
 
-    msg = await message.answer("Qosimovde Videoingizni yuklanmoqda, biroz kuting...")
-    
-    output_filename = f"video_{message.from_user.id}.mp4"
-
-    ydl_opts = {
-        'format': 'best',
-        'outtmpl': output_filename,
-        'noplaylist': True,
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-    }
+    processing_msg = await message.answer("Qosimovde tomonidan videoingiz yuklanyabdi...")
 
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-
-        if os.path.exists(output_filename):
-            video_file = types.FSInputFile(output_filename)
-            await message.answer_video(
-                video=video_file,
-                caption="✅ Marhamat, siz so'ragan video!",
-                supports_streaming=True
-            )
-            await bot.delete_message(chat_id=message.chat.id, message_id=msg.message_id)
-            os.remove(output_filename)
+        loop = asyncio.get_running_loop()
+        file_path = await loop.run_in_executor(None, download_media, url)
+        
+        if file_path.endswith(('.mp4', '.mkv', '.mov', '.webm')):
+            await message.answer_video(types.FSInputFile(file_path))
+        elif file_path.endswith(('.jpg', '.jpeg', '.png', '.webp')):
+            await message.answer_photo(types.FSInputFile(file_path))
         else:
-            await msg.edit_text("❌ Videoni yuklab bo'lmadi. Havolani tekshiring.")
-
+            await message.answer_document(types.FSInputFile(file_path))
+            
+        await bot.delete_message(message.chat.id, processing_msg.message_id)
+        
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            
     except Exception as e:
-        logging.error(f"Xatolik: {e}")
-        await msg.edit_text("❌ Xatolik yuz berdi. Bu video juda katta yoki yopiq profilniki bo'lishi mumkin.")
-        if os.path.exists(output_filename):
-            os.remove(output_filename)
+        await message.answer(f"Xatolik yuz berdi: Havola yopiq yoki yaroqsiz bo'lishi mumkin.")
+        try:
+            await bot.delete_message(message.chat.id, processing_msg.message_id)
+        except:
+            pass
 
 async def main():
+    asyncio.create_task(start_web_server())
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
