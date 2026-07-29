@@ -18,9 +18,9 @@ async def download_video(message: Message):
     output_filename = "video.mp4"
     
     ydl_opts = {
-        'format': 'best',
-        'outtmpl': output_filename,
-        'max_filesize': 50 * 1024 * 1024,
+        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+    'outtmpl': output_filename,
+}
     }
     
     try:
