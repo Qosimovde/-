@@ -5,7 +5,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 import yt_dlp
 
-TOKEN ="8549085903:AAFbdwg8vyEEn4v0ml7AzfCGZsBhkiRIg2I"
+TOKEN = "8549085903:AAFbdwg8vyEEn4vOml7AzfCGZsBhkiRIg2I"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
