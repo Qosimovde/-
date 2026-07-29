@@ -1,2 +1,2 @@
 aiogram
-yt_opts
+yt-dlp
