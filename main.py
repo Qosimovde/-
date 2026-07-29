@@ -1,6 +1,6 @@
 import os
 import asyncio
-from aiohttp import web
+from aiohttp import web, ClientSession
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 import yt_dlp
@@ -9,9 +9,23 @@ TOKEN ="8549085903:AAFbdwg8vyEEn4vOml7AzfCGZsBhkiRIg2I"
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# --- 1. UXLAMAYDIGAN QILISH (Keep-Alive Server) ---
+# --- 1. 5 SEKUNDDA BIR O'ZINI O'ZI UYG'OTISH ---
 async def handle(request):
-    return web.Response(text="Bot ishlayapti va uxlamayapti!")
+    return web.Response(text="Bot 10 sekundda bir tinimsiz ishlamoqda!")
+
+async def self_ping():
+    await asyncio.sleep(5)
+    url = os.environ.get("RENDER_EXTERNAL_URL")
+    if not url:
+        return
+    while True:
+        try:
+            async with ClientSession() as session:
+                async with session.get(url) as response:
+                    await response.text()
+        except Exception:
+            pass
+        await asyncio.sleep(10)
 
 async def start_web_server():
     app = web.Application()
@@ -21,6 +35,8 @@ async def start_web_server():
     port = int(os.environ.get("PORT", 8080))
     site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
+    
+    asyncio.create_task(self_ping())
 
 # --- 2. YUKLASH FUNKSIYASI ---
 def download_media(url: str) -> str:
@@ -47,7 +63,7 @@ async def download_handler(message: types.Message):
         await message.answer("Iltimos, to'g'ri havola yuboring!")
         return
 
-    processing_msg = await message.answer("Qosimovde tomonidan videoingiz yuklanyabdi...")
+    processing_msg = await message.answer("Qosimovde videoingizni yuklamoqda...")
 
     try:
         loop = asyncio.get_running_loop()
@@ -78,7 +94,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
