@@ -11,7 +11,7 @@ dp = Dispatcher()
 
 # --- 1. 1 SEKUNDDA BIR O'ZINI O'ZI UYG'OTISH ---
 async def handle(request):
-    return web.Response(text="Bot 10 sekundda bir tinimsiz ishlamoqda!")
+    return web.Response(text="Bot ishlamoqda!")
 
 async def self_ping():
     await asyncio.sleep(5)
@@ -45,6 +45,11 @@ def download_media(url: str) -> str:
         'outtmpl': 'downloads/%(id)s.%(ext)s',
         'quiet': True,
         'no_warnings': True,
+        'geo_bypass': True,
+        'nocheckcertificate': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
     }
     os.makedirs('downloads', exist_ok=True)
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -69,9 +74,10 @@ async def download_handler(message: types.Message):
         loop = asyncio.get_running_loop()
         file_path = await loop.run_in_executor(None, download_media, url)
         
-        if file_path.endswith(('.mp4', '.mkv', '.mov', '.webm')):
+        file_lower = file_path.lower()
+        if file_lower.endswith(('.mp4', '.mkv', '.mov', '.webm', '.avi', '.m4v')):
             await message.answer_video(types.FSInputFile(file_path))
-        elif file_path.endswith(('.jpg', '.jpeg', '.png', '.webp')):
+        elif file_lower.endswith(('.jpg', '.jpeg', '.png', '.webp')):
             await message.answer_photo(types.FSInputFile(file_path))
         else:
             await message.answer_document(types.FSInputFile(file_path))
