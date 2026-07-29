@@ -9,9 +9,9 @@ TOKEN ="8549085903:AAFbdwg8vyEEn4vOml7AzfCGZsBhkiRIg2I"
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# --- 1. 5 SEKUNDDA BIR O'ZINI O'ZI UYG'OTISH ---
+# --- 1. 10 SEKUNDDA BIR O'ZINI O'ZI UYG'OTISH ---
 async def handle(request):
-    return web.Response(text="Bot 10 sekundda bir tinimsiz ishlamoqda!")
+    return web.Response(text="Bot 1 sekundda bir tinimsiz ishlamoqda!")
 
 async def self_ping():
     await asyncio.sleep(5)
@@ -38,13 +38,18 @@ async def start_web_server():
     
     asyncio.create_task(self_ping())
 
-# --- 2. YUKLASH FUNKSIYASI ---
+# --- 2. YUKLASH FUNKSIYASI (YANGILANGAN) ---
 def download_media(url: str) -> str:
     ydl_opts = {
         'format': 'best',
         'outtmpl': 'downloads/%(id)s.%(ext)s',
         'quiet': True,
         'no_warnings': True,
+        'geo_bypass': True,
+        'nocheckcertificate': True,
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
     }
     os.makedirs('downloads', exist_ok=True)
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
