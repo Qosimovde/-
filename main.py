@@ -24,7 +24,7 @@ async def download_video(message: types.Message):
         await message.answer("Iltimos, faqat Instagram havolasini yuboring!")
         return
 
-    msg = await message.answer("⏳ Video yuklanmoqda, biroz kuting...")
+    msg = await message.answer("Qosimovde Videoingizni yuklanmoqda, biroz kuting...")
     
     output_filename = f"video_{message.from_user.id}.mp4"
 
