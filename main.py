@@ -5,7 +5,7 @@ from aiogram.types import Message
 import asyncio
 
 # Tokeningizni shu yerga yozasiz
-TOKEN = "BOT_TOKENINGIZNI_SHU_YERGA_YOZING"
+TOKEN = "8549085903:AAGe2LmXahcCXxZzdOsF0oAB-h0g3j8Ilvg"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
